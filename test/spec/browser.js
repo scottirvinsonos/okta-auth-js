@@ -122,6 +122,23 @@ describe('Browser', function() {
         expect(auth.options.pkce).toBe(false);
       });
     });
+  
+    describe('getToken options', function() {
+      it('responseType is undefined by default', function() {
+        expect(auth.options.responseType).toBeUndefined();
+      });
+      it('can set responseType', function() {
+        auth = new OktaAuth({ issuer, responseType: 'code' });
+        expect(auth.options.responseType).toBe('code');
+      });
+      it('scopes is undefined by default', function() {
+        expect(auth.options.scopes).toBeUndefined();
+      });
+      it('can set scopes', function() {
+        auth = new OktaAuth({ issuer, scopes: ['fake', 'scope']});
+        expect(auth.options.scopes).toEqual(['fake', 'scope']);
+      });
+    });
   });
 
   describe('signInWithCredentials', () => {
@@ -673,6 +690,24 @@ describe('Browser', function() {
     it('should cleare referrer from localStorage', () => {
       auth.removeFromUri();
       expect(removeItemMock).toHaveBeenCalledWith(REFERRER_PATH_STORAGE_KEY);
+    });
+  });
+
+  describe('isAuthorizationCodeFlow', () => {
+    it('is false by default', () => {
+      expect(auth.isAuthorizationCodeFlow()).toBe(false);
+    });
+    it('will be true if pkce is false and responseType is "code"', () => {
+      auth = new OktaAuth({ issuer, pkce: false, responseType: 'code' });
+      expect(auth.isAuthorizationCodeFlow()).toBe(true);
+    });
+    it('will be true if pkce is false and responseType is ["code"]', () => {
+      auth = new OktaAuth({ issuer, pkce: false, responseType: ['code'] });
+      expect(auth.isAuthorizationCodeFlow()).toBe(true);
+    });
+    it('will be false if pkce is true and responseType is ["code"]', () => {
+      auth = new OktaAuth({ issuer, pkce: true, responseType: ['code'] });
+      expect(auth.isAuthorizationCodeFlow()).toBe(false);
     });
   });
 });

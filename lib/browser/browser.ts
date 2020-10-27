@@ -137,6 +137,7 @@ class OktaAuthBrowser extends OktaAuthBase implements OktaAuth, SignoutAPI {
       redirectUri: toAbsoluteUrl(args.redirectUri, window.location.origin),
       postLogoutRedirectUri: args.postLogoutRedirectUri,
       responseMode: args.responseMode,
+      responseType: args.responseType,
       transformErrorXHR: args.transformErrorXHR,
       cookies: getCookieSettings(this, args),
       scopes: args.scopes,
@@ -429,6 +430,17 @@ class OktaAuthBrowser extends OktaAuthBase implements OktaAuth, SignoutAPI {
   removeFromUri(): void {
     const storage = browserStorage.getSessionStorage();
     storage.removeItem(REFERRER_PATH_STORAGE_KEY);
+  }
+
+  isAuthorizationCodeFlow(): boolean {
+    const responseType = this.options.responseType || '';
+    let isCodeResponse = false;
+    if (Array.isArray(responseType) && responseType.length) {
+      isCodeResponse = responseType.indexOf('code') >= 0;
+    } else {
+      isCodeResponse = responseType === 'code';
+    }
+    return (!this.options.pkce && isCodeResponse);
   }
 }
 
